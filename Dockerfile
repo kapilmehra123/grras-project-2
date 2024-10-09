@@ -4,7 +4,6 @@ RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|
 RUN yum install httpd zip wget unzip -y
 RUN wget -O /var/www/html/makaan.zip https://www.free-css.com/assets/files/free-css-templates/download/page295/makaan.zip
 WORKDIR /var/www/html
-CMD mkdir runb
 RUN unzip makaan.zip
 RUN cp -rf real-estate-html-template/* . &&\
     rm -rf real-estate-html-template
