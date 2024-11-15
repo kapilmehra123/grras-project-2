@@ -4,7 +4,6 @@ RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|
 RUN yum install httpd zip wget unzip -y
 RUN wget -O /var/www/html/finexo.zip https://www.free-css.com/assets/files/free-css-templates/download/page296/finexo.zip
 WORKDIR /var/www/html
-RUN mkdir space
 RUN unzip finexo.zip
 RUN cp -rf finexo-html/* . &&\
     rm -rf finexo-html
