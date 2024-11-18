@@ -7,5 +7,5 @@ WORKDIR /var/www/html
 RUN unzip finexo.zip
 RUN cp -rf finexo-html/* . &&\
     rm -rf finexo-html
-EXPOSE 80
+EXPOSE 90
 CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
