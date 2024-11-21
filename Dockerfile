@@ -5,6 +5,7 @@ RUN yum install httpd zip wget unzip -y
 RUN wget -O /var/www/html/oxer.zip https://www.free-css.com/assets/files/free-css-templates/download/page296/oxer.zip
 WORKDIR /var/www/html
 RUN unzip oxer.zip
+RUN mkdir web
 RUN cp -rf oxer-html/* . &&\
     rm -rf oxer-html
 EXPOSE 80
