@@ -1,0 +1,83 @@
+cd /root/content
+docker build -t devops-project:v1 .
+docker tag devops-project:v1 kapilmehra/devops-project:latest
+docker tag devops-project:v1 kapilmehra/devops-project:v1
+docker push kapilmehra/devops-project:v1
+docker push kapilmehra/devops-project:latest
+
+
+cd /root/content
+docker build -t $JOB_NAME:v$BUILD_ID .
+docker tag $JOB_NAME:v$BUILD_ID kapilmehra/$JOB_NAME:latest
+docker tag $JOB_NAME:v$BUILD_ID kapilmehra/$JOB_NAME:v$BUILD_ID
+docker push kapilmehra/$JOB_NAME:latest
+docker push kapilmehra/$JOB_NAME:v$BUILD_ID
+docker rmi -f kapilmehra/$JOB_NAME:v$BUILD_ID kapilmehra/$JOB_NAME:latest
+
+
+FROM centos:latest
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+RUN yum install httpd zip wget unzip -y
+RUN wget -O /var/www/html/applight.zip https://www.free-css.com/assets/files/free-css-templates/download/page295/applight.zip
+WORKDIR /var/www/html
+RUN unzip applight.zip
+RUN cp -rf Applight/* . &&\
+    rm -rf Applight
+EXPOSE 80
+CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+
+
+
+---
+- name: Launch Docker Container
+  hosts: docker
+  vars:
+    docker_image: "kapilmehra123/project-1"
+    docker_tag: "latest"
+    container_name: "con1"
+    host_port: "80"
+    container_port: "80"
+  tasks:
+    - name: Check if the container is already running
+      docker_container:
+        name: "{{ container_name }}"
+        state: absent
+      register: container_stats
+      ignore_errors: yes
+
+    - name: Remove old container if it exists
+      docker_container:
+        name: "{{ container_name }}"
+        state: absent
+    - name: Remove all Docker images
+      shell: docker rmi -f $(docker images -q)
+
+    - name: Pull the Docker image
+      docker_image:
+        name: "{{ docker_image }}"
+        tag: "{{ docker_tag }}"
+        source: pull
+
+    - name: Run the new Docker Container
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ docker_image }}:{{ docker_tag }}"
+        state: started
+        published_ports: "{{ host_port }}:{{ container_port }}"
+
+
+
+
+[defaults]
+inventory = ./inventory
+remote_user = ec2-user
+host_key_checking = false
+private_key_file = ./ansible-key.pem
+ask_pass = false
+
+[privilege_escalation]
+become = true
+become_method = sudo
+become_user = root
+become_ask_pass = False
